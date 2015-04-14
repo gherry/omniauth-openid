@@ -18,11 +18,12 @@ module OmniAuth
         :city => 'http://axschema.org/contact/city/home',
         :state => 'http://axschema.org/contact/state/home',
         :website => 'http://axschema.org/contact/web/default',
-        :image => 'http://axschema.org/media/image/aspect11'
+        :image => 'http://axschema.org/media/image/aspect11',
+        :realm_id => 'http://axschema.org/intuit/realmId'
       }
 
       option :name, :open_id
-      option :required, [AX[:email], AX[:name], AX[:first_name], AX[:last_name], 'email', 'fullname']
+      option :required, [AX[:email], AX[:name], AX[:first_name], AX[:last_name], AX[:realm_id], 'email', 'fullname']
       option :optional, [AX[:nickname], AX[:city], AX[:state], AX[:website], AX[:image], 'postcode', 'nickname']
       option :store, ::OpenID::Store::Memory.new
       option :identifier, nil
@@ -34,7 +35,7 @@ module OmniAuth
           :return_to => callback_url,
           :required => options.required,
           :optional => options.optional,
-          :method => 'post'
+          :method => 'get'
         )}, []]}
       end
 
@@ -43,7 +44,7 @@ module OmniAuth
         i = nil if i == ''
         i
       end
-      
+
       def request_phase
         identifier ? start : get_identifier
       end
@@ -106,6 +107,7 @@ module OmniAuth
         return {} unless ax
         {
           'email' => ax.get_single(AX[:email]),
+          'realm_id' => ax.get_single(AX[:realm_id]),
           'first_name' => ax.get_single(AX[:first_name]),
           'last_name' => ax.get_single(AX[:last_name]),
           'name' => (ax.get_single(AX[:name]) || [ax.get_single(AX[:first_name]), ax.get_single(AX[:last_name])].join(' ')).strip,
